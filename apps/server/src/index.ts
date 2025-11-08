@@ -8,20 +8,16 @@ const app = express();
 
 app.use(
   cors({
-    origin: process.env.CORS_ORIGIN || "",
+    origin: [process.env.CORS_ORIGIN || "", "http://localhost:5173"],
     methods: ["GET", "POST", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
   })
 );
 
-app.all("/api/auth{/*path}", toNodeHandler(auth));
+app.all("/api/auth/*splat", toNodeHandler(auth));
 
 app.use(express.json());
-
-app.get("/", (_req, res) => {
-  res.status(200).send("OK");
-});
 
 const port = process.env.PORT || 3000;
 app.listen(port, () => {

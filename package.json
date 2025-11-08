@@ -33,7 +33,7 @@
   "packageManager": "bun@1.2.21",
   "dependencies": {
     "dotenv": "^17.2.2",
-    "zod": "^4.1.11"
+    "zod": "^4.1.12"
   },
   "devDependencies": {
     "tsdown": "^0.15.5",

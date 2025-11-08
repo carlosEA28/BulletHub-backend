@@ -1,7 +1,6 @@
 model User {
   id            String    @id @map("_id")
-  socialId      String
-  username          String
+  name          String
   email         String?
   emailVerified Boolean
   image         String?
