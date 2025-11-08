@@ -1,11 +1,36 @@
 generator client {
-  provider = "prisma-client"
-  output   = "../generated"
+  provider     = "prisma-client"
+  output       = "../generated"
   moduleFormat = "esm"
-  runtime = "bun"
+  runtime      = "bun"
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+
+
+model Summary{
+  id String @id @default(uuid())
+  cv_id String
+  title String
+  summary String
+  Language String[]
+  BulletPoints String[]
+  createdAt DateTime @default(now())
+  cv Cv @relation(fields: [cv_id], references: [id])
+}
+
+model Cv{
+  id String @id @default(uuid())
+  user_id String
+  title String
+  cv_url String
+  createdAt DateTime @default(now())
+  user User @relation(fields: [user_id], references: [id])
+  summaries Summary[]
+}
+
+

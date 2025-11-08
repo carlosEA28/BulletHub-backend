@@ -1,13 +1,15 @@
 model User {
   id            String    @id @map("_id")
-  name          String
-  email         String
+  socialId      String
+  username          String
+  email         String?
   emailVerified Boolean
   image         String?
   createdAt     DateTime
   updatedAt     DateTime
   sessions      Session[]
   accounts      Account[]
+  cv Cv[]
 
   @@unique([email])
   @@map("user")
