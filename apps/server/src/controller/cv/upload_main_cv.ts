@@ -4,6 +4,7 @@ import type {Request} from "express";
 import {fromNodeHeaders} from "better-auth/node";
 import {ZodError} from "zod";
 import {CurriculumAlreadyExists, NoFileUploadedError, UnauthorizedError} from "@/erros/cv";
+import {created, serverError} from "@/controller/helpers/httpHelpers";
 
 export class UploadMainCVController {
 
@@ -25,14 +26,16 @@ export class UploadMainCVController {
 
             const { file } = httpRequest;
 
-            return await this.uploadMainCv.execute({
+
+
+            const result = await this.uploadMainCv.execute({
                 title: file!.originalname,
                 fileBuffer: file!.buffer,
                 fileMimeType: file!.mimetype,
                 userId: session.user.id
             });
 
-
+            return created(result);
 
         } catch (e) {
             if(e instanceof ZodError){
@@ -51,10 +54,10 @@ export class UploadMainCVController {
                 return e.message
             }
 
-
-
             console.log(e)
-            //criar resposta internal server error
+            return serverError("Internal Server Error")
         }
     }
 }
+
+
