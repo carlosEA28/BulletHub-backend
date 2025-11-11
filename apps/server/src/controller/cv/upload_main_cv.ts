@@ -25,21 +25,14 @@ export class UploadMainCVController {
 
             const { file } = httpRequest;
 
-            //escrever um erro custom
-            if (!file) {
-                console.log('❌ Nenhum arquivo encontrado no request')
-                throw new Error('Arquivo não encontrado')
-            }
-
-
-            const result = await this.uploadMainCv.execute({
-                title: file.originalname,
-                fileBuffer: file.buffer,
-                fileMimeType: file.mimetype,
+            return await this.uploadMainCv.execute({
+                title: file!.originalname,
+                fileBuffer: file!.buffer,
+                fileMimeType: file!.mimetype,
                 userId: session.user.id
             });
 
-            return result;
+
 
         } catch (e) {
             if(e instanceof ZodError){
