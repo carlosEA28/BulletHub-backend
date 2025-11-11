@@ -2,6 +2,8 @@ import {UploadUserMainCvService} from "@/service/cv/upload-user-main-cv";
 import {auth} from "@my-better-t-app/auth";
 import type {Request} from "express";
 import {fromNodeHeaders} from "better-auth/node";
+import {ZodError} from "zod";
+import {CurriculumAlreadyExists, NoFileUploadedError, UnauthorizedError} from "@/erros/cv";
 
 export class UploadMainCVController {
 
@@ -10,7 +12,6 @@ export class UploadMainCVController {
     }
 
     async execute(httpRequest: Request) {
-        console.log('🚀 Controller executado!') // ⬅️ PRIMEIRO LOG
 
         try {
 
@@ -18,11 +19,7 @@ export class UploadMainCVController {
                 headers: fromNodeHeaders(httpRequest.headers)
             })
 
-            console.log('👤 Session resultado:', session)
-
-            //escrever um erro custom
             if (!session?.user) {
-                console.log('❌ Sessão não encontrada ou usuário null')
                 throw new Error('Não autenticado')
             }
 
@@ -45,8 +42,26 @@ export class UploadMainCVController {
             return result;
 
         } catch (e) {
-            console.error('❌ Erro no controller:', e);
-            throw e;
+            if(e instanceof ZodError){
+                return e.message
+            }
+
+            if(e instanceof CurriculumAlreadyExists){
+                return e.message
+            }
+
+            if(e instanceof UnauthorizedError){
+                return e.message
+            }
+
+            if(e instanceof NoFileUploadedError){
+                return e.message
+            }
+
+
+
+            console.log(e)
+            //criar resposta internal server error
         }
     }
 }
