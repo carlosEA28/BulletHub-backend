@@ -4,6 +4,7 @@ import express from "express";
 import {auth} from "@my-better-t-app/auth";
 import {toNodeHandler} from "better-auth/node";
 import {cvRouter} from "@/routes/cv/cv";
+import {userRouter} from "@/routes/user/user";
 
 dotenv.config();
 
@@ -24,6 +25,7 @@ app.all("/api/auth/*splat", toNodeHandler(auth));
 app.use(express.json());
 
 app.use("/api/cv",cvRouter)
+app.use("/api/user",userRouter)
 
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
