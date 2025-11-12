@@ -1,10 +1,8 @@
 import {UploadUserMainCvService} from "@/service/cv/upload-user-main-cv";
-import {auth} from "@my-better-t-app/auth";
 import type {Request} from "express";
-import {fromNodeHeaders} from "better-auth/node";
 import {ZodError} from "zod";
 import {CurriculumAlreadyExists, NoFileUploadedError, UnauthorizedError} from "@/erros/cv";
-import {created, serverError} from "@/controller/helpers/httpHelpers";
+import {badRequest, created, serverError, unauthorized} from "@/controller/helpers/httpHelpers";
 
 export class UploadMainCVController {
 
@@ -15,43 +13,41 @@ export class UploadMainCVController {
     async execute(httpRequest: Request) {
 
         try {
-
-            const session = await auth.api.getSession({
-                headers: fromNodeHeaders(httpRequest.headers)
-            })
-
-            if (!session?.user) {
-                throw new Error('Não autenticado')
-            }
-
             const { file } = httpRequest;
-
-
+            const userId = (httpRequest as any).session.user.id;
 
             const result = await this.uploadMainCv.execute({
                 title: file!.originalname,
                 fileBuffer: file!.buffer,
                 fileMimeType: file!.mimetype,
-                userId: session.user.id
+                userId: userId
             });
 
             return created(result);
 
         } catch (e) {
             if(e instanceof ZodError){
-                return e.message
+                return badRequest({
+                    message:e.message,
+                })
             }
 
             if(e instanceof CurriculumAlreadyExists){
-                return e.message
+                return badRequest({
+                    message:e.message,
+                })
             }
 
             if(e instanceof UnauthorizedError){
-                return e.message
+                return unauthorized({
+                    message:e.message,
+                })
             }
 
             if(e instanceof NoFileUploadedError){
-                return e.message
+                return badRequest({
+                    message:e.message,
+                })
             }
 
             console.log(e)
@@ -59,5 +55,8 @@ export class UploadMainCVController {
         }
     }
 }
+
+
+
 
 
