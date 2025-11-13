@@ -21,3 +21,11 @@ export const GetuserReposParams=z.object({
 })
 
 export type GetUserReposParams = z.infer<typeof GetuserReposParams>;
+
+export const GetSpecifycRepoParams=z.object({
+    username: z.string().min(1, { message: "The user name is required" }),
+    repoName: z.string().min(1, { message: "The repository name is required" }),
+    userId: z.string().min(1, { message: "The user id is required" }),
+})
+
+export type GetSpecifycRepoParamss = z.infer<typeof GetSpecifycRepoParams>;

@@ -1,6 +1,7 @@
 import {axiosInstance} from "@/utils/axios";
-import {type GetUserReposData} from "@/schemas/github";
+import {type GetUserReposData, RepoSchema} from "@/schemas/github";
 import {ReposNotFound} from "@/erros/external/github";
+import z from "zod";
 
 export class GithubClient {
     async getUserRepos(username: string): Promise<GetUserReposData> {
@@ -22,5 +23,26 @@ export class GithubClient {
             description: repo.description,
             mainLanguage: repo.language,
         }));
+    }
+
+    async getSpecifycRepo(username: string, repoName:string): Promise<z.infer<typeof RepoSchema>>{
+        const response = await axiosInstance.get(`https://api.github.com/repos/${username}/${repoName}`);
+        const repo = response.data;
+
+        if (!repo) {
+            throw new ReposNotFound();
+        }
+
+        return RepoSchema.parse({
+            repoId: repo.id,
+            repoName: repo.name,
+            fullRepoName: repo.full_name,
+            owner: {
+                login: repo.owner.login,
+                linkToRepo: repo.owner.html_url,
+            },
+            description: repo.description ?? "No description provided.",
+            mainLanguage: repo.language ?? "Unknown",
+        });
     }
 }

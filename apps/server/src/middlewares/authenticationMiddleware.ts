@@ -13,5 +13,7 @@ export async function authenticationMiddleware(req: Request, res: Response, next
 
     (req as any).session = session;
 
+    console.log("SESSION USER:", (req as any).session.user);
+
     next();
 }

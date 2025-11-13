@@ -7,7 +7,7 @@ import {PostgresGetUserByIdRepository} from "@/repositories/postgres/user/getUse
 
 export const makeUploadMainCvController = () =>{
     const cloudflare = new CloudflareService()
-    // const getUserByEmail = new PostgresGetUserByEmailRepositry()
+
     const getUserById = new PostgresGetUserByIdRepository()
     const getCvByTitle = new PostgresGetFileByName()
     const uploadCv = new PostgresUploadCv()
