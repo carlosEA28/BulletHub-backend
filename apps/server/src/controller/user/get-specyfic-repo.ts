@@ -14,7 +14,6 @@ export class GetSpecyficRepoController {
             const {username,repoName} = httpRequest.params
             const userId = (httpRequest as any).session.user.id;
 
-            console.log("DEBUG CONTROLLER PARAMS:", { username, repoName, userId });
 
             const validatedParams = await GetSpecifycRepoParams.parseAsync({
                 userId: userId,

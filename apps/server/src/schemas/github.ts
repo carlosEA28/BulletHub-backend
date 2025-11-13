@@ -10,6 +10,7 @@ export const RepoSchema = z.object({
     }),
     description: z.string().nullable(),
     mainLanguage: z.string().nullable(),
+    content:z.json().optional()
 });
 export const GetUserReposSchema = z.array(RepoSchema);
 
@@ -29,3 +30,7 @@ export const GetSpecifycRepoParams=z.object({
 })
 
 export type GetSpecifycRepoParamss = z.infer<typeof GetSpecifycRepoParams>;
+
+export const ReposDependencySchema = z.object({
+    content: z.string().min(1, { message: "The content is required" }),
+})

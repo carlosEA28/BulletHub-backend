@@ -2,6 +2,7 @@ import {axiosInstance} from "@/utils/axios";
 import {type GetUserReposData, RepoSchema} from "@/schemas/github";
 import {ReposNotFound} from "@/erros/external/github";
 import z from "zod";
+import {DEPENDENCY_EXTENSION} from "@/constants/dependencyExtension";
 
 export class GithubClient {
     async getUserRepos(username: string): Promise<GetUserReposData> {
@@ -25,12 +26,27 @@ export class GithubClient {
         }));
     }
 
-    async getSpecifycRepo(username: string, repoName:string): Promise<z.infer<typeof RepoSchema>>{
+    async getSpecifycRepo(username: string, repoName:string): Promise<z.infer<typeof RepoSchema>> {
         const response = await axiosInstance.get(`https://api.github.com/repos/${username}/${repoName}`);
         const repo = response.data;
 
         if (!repo) {
             throw new ReposNotFound();
+        }
+
+        const mainLanguage = repo.language ?? "Unknown";
+
+        let dependencyContent = null;
+        if (mainLanguage !== "Unknown") {
+            try {
+                dependencyContent = await this.getDependencyFileContent(
+                    username,
+                    repoName,
+                    mainLanguage
+                );
+            } catch (e) {
+                console.warn(`Arquivo de dependência não encontrado para ${repoName}.`);
+            }
         }
 
         return RepoSchema.parse({
@@ -42,7 +58,45 @@ export class GithubClient {
                 linkToRepo: repo.owner.html_url,
             },
             description: repo.description ?? "No description provided.",
-            mainLanguage: repo.language ?? "Unknown",
+            mainLanguage: mainLanguage,
+            content: JSON.parse(dependencyContent!),
         });
+    }
+
+    async getDependencyFileContent(
+        username: string,
+        repoName: string,
+        mainLanguage: string
+    ): Promise<string> {
+
+        if (!mainLanguage) {
+            throw new Error();
+        }
+        const normalizedLanguage = mainLanguage.charAt(0).toUpperCase() + mainLanguage.slice(1).toLowerCase();
+
+        const dependencyInfo = DEPENDENCY_EXTENSION.find(
+            item => item.language.toLowerCase() === normalizedLanguage.toLowerCase()
+        );
+
+        if (!dependencyInfo) {
+            throw new Error();
+        }
+
+        const filePath = dependencyInfo.extension;
+
+        const url = `https://api.github.com/repos/${username}/${repoName}/contents/${filePath}`;
+
+        try {
+            const response = await axiosInstance.get(url, {
+                headers: {
+                    'Accept': 'application/vnd.github.v3.raw'
+                },
+                responseType: 'text',
+            });
+
+            return response.data;
+        } catch (error) {
+            throw error;
+        }
     }
 }
